@@ -1,101 +1,50 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
-
-async function run(page) {
-  //console.log(page)
-
-  const acceptCookiesSelector = 'button[class="CancleButtonCss filebuttonwidth_100px"]';
-  await page.waitForSelector(acceptCookiesSelector);
-  await page.click(acceptCookiesSelector);
-
-
-
-  // const acceptCookiesSelector = 'button[class="CancleButtonCss filebuttonwidth_100px"]'
-
-  // const [fileChooser] = await Promise.all([
-  //   page.waitForFileChooser(),
-  //   page.click(acceptCookiesSelector),
-  // ])
-
-  // await fileChooser.accept(['/EG8145.bin']);
-
-}
+var child_process = require('child_process');
 
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
+    args: [
+      '--start-maximized'
+    ]
   });
 
+  //instancia browser
   const page = await browser.newPage();
+  await page.setUserAgent(process.env.HTTP_USER_AGENT);
   await page.goto('http://192.168.18.1');
+  await page.setViewport({ width: 1366, height: 768 });
 
-  // - Acessa a página de login
-  // await page.click('[href="/login"]');
-
-  // Troque os valores de process.env.UNSPLASH_EMAIL e process.env.UNSPLASH_PASS pelo seu login e senha :)
-  await page.type('#txt_Username', 'Epadmin')
-  await page.type('#txt_Password', 'adminEp')
-  // await page.type('#user_password', process.env.UNSPLASH_PASS)
+  //login
+  await page.type('#txt_Username', process.env.ONT_USER)
+  await page.type('#txt_Password', process.env.ONT_PASS)
   await page.click(('[name="loginbuttonOnly"]'))
+
   await page.waitForNavigation();
-  await page.click(('#addconfig'))
-  await page.click(('#name_maintaininfo'))
 
-  // get the selector input type=file (for upload file)
-  await page.waitForSelector('input[type=file]');
-  await page.waitFor(1000);
+  //vai direto pra página de upgrade
+  await page.goto('http://192.168.18.1/html/ssmp/fireware/firmware.asp');
 
-  // get the ElementHandle of the selector above
-  const inputUploadHandle = await page.$('input[type=file]');
-  console.log(inputUploadHandle)
-  let fileToUpload = './EG8145.bin';
+  //seta foco no input file e logo após remove o foco do elemento
+  await page.focus('input[type=file]')
+  await page.$eval('input[type=file]', e => e.blur());
 
-  // Sets the value of the file input to fileToUpload
-  inputUploadHandle.uploadFile(fileToUpload);
+  //aguarda o selector aparecer, recebe ele, upa o arquivo e clica no botao de download
+  await page.waitForSelector("input[type=file]");
+  const input = await page.$("input[type=file]");
+  await input.uploadFile('./firmwares/EG8145.bin')
+  await page.click('#btnSubmit')
 
-  await page.waitForSelector('#btnSubmit');
-  await page.evaluate(() => document.getElementById('btnSubmit').click());
+  await page.waitForSelector("#RebootDes", { timeout: 0 });
+  page.on('dialog', async dialog => {//on event listener trigger
 
-  // await page.evaluate(() => document.getElementById('upload').click());
+    console.log(dialog.message()); //get alert message
+    await dialog.accept(); //accept alert
+  })
+  await page.click("#RebootDes");
 
-  //await run(page)
+  browser.close();
+  child_process.execSync("start cmd.exe /K ping -t 192.168.18.1");
 
-  //await page.waitForSelector('input[type=file]');
-  // await page.waitFor(1000);
-
-  // // get the ElementHandle of the selector above
-  //const inputUploadHandle = await page.$('input[type=file]');
-
-  // // prepare file to upload, I'm using test_to_upload.jpg file on same directory as this script
-  // // Photo by Ave Calvar Martinez from Pexels https://www.pexels.com/photo/lighthouse-3361704/
-  // let fileToUpload = 'test_to_upload.jpg';
-
-  // // Sets the value of the file input to fileToUpload
-  //inputUploadHandle.uploadFile('./EG8145.bin');
-
-  // var up = await page.
-  // $('#t_file');
-  // console.log(up)
-  // await up.uploadFile(['./EG8145.bin'])
-
-  //const elementHandle = await page.$("input[type=file]");
-  //await elementHandle.uploadFile('./EG8145.bin');
-  //await page.click(('#btnSubmit'))
-
-  //await page.click('selector-of-submit-button');
-
-  //await page.click('#addconfig]')
-  //await page.click('#btncfgnext')
-
-  //await page.click('[type="submit"]')
-
-
-  // // ACESSAR essa pagina
-  // await page.goto('https://unsplash.com/photos/LzWXPcJg7lk');
-
-  // // Like nessa coisa
-  // await page.click('[title="Like photo"]')
-
-
-  // await browser.close();
 })();
