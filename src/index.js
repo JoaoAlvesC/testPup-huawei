@@ -8,3 +8,8 @@ app.listen(port, ()=> {
     console.log('server rodando na porta ', port)
 });
 
+
+/*
+browser.close();
+child_process.execSync("start cmd.exe /K ping -t 192.168.18.1");
+*/
