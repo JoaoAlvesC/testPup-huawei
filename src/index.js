@@ -1,13 +1,11 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import constants from './utils/constants.js';
 import app from './server.js';
 
-const port = process.env.PORT || 3000;
+const port = constants.SERVER_PORT || 3000;
 
 app.listen(port, ()=> {
     console.log('server rodando na porta ', port)
 });
-
 
 /*
 browser.close();

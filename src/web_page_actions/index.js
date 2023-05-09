@@ -1,10 +1,17 @@
-export const handle_login = async (page) => {
-    const {HTTP_USER_AGENT, ONT_IP, ONT_USER, ONT_PASS} = process.env;
-    
-    console.log('Logging...')
+import constants from '../utils/constants.js';
+import path from 'path'
+import { fileURLToPath } from 'url';
 
-    await page.setUserAgent(HTTP_USER_AGENT);
-    await page.goto(`http://${ONT_IP}`);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname_firmwares = path.dirname(__filename).replace('web_page_actions',"") + 'firmwares';
+
+
+console.log(path.join(__dirname_firmwares, 'EG8145.bin'));
+
+export const handle_login = async (page) => {
+    const {ONT_IP, ONT_USER, ONT_PASS} = constants;
+    console.log('Logging...')
+    await page.goto(`http:/${ONT_IP}`);
     await page.setViewport({ width: 1366, height: 768 });
 
     //login
@@ -19,8 +26,9 @@ export const handle_login = async (page) => {
 }
 
 export const handle_firmware_upgrade = async (page) => {
-    const {ONT_IP} = process.env;
+    const {ONT_IP} = constants;
     console.log('Uploading firmware...')
+    
     //vai direto pra página de upgrade
     await page.goto(`http://${ONT_IP}/html/ssmp/fireware/firmware.asp`);
 
@@ -31,8 +39,8 @@ export const handle_firmware_upgrade = async (page) => {
     //aguarda o selector aparecer, recebe ele, upa o arquivo e clica no botao de download
     await page.waitForSelector("input[type=file]");
     const input = await page.$("input[type=file]");
-    await input.uploadFile('./firmwares/EG8145.bin')
-    await page.click('#btnSubmit')
+    await input.uploadFile(path.join(__dirname_firmwares, 'EG8145.bin'));
+    await page.click('#btnSubmit');
 
     await page.waitForSelector("#RebootDes", { timeout: 0 });
     page.on('dialog', async dialog => {//on event listener trigger
