@@ -3,9 +3,11 @@ import app from './server.js';
 
 const port = constants.SERVER_PORT || 3000;
 
-app.listen(port, ()=> {
+export const server_instance = app.listen(port, ()=> {
     console.log('server rodando na porta ', port)
 });
+
+
 
 /*
 browser.close();

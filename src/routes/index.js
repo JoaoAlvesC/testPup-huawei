@@ -1,5 +1,5 @@
 import express from 'express';
-import { upgradeFirmware } from '../controller/upgrade_firmware_controller.js';
+import {upgradeFirmware } from '../controller/upgrade_firmware_controller.js';
 
 const router = express.Router();
 

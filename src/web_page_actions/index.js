@@ -10,7 +10,7 @@ console.log(path.join(__dirname_firmwares, 'EG8145.bin'));
 
 export const handle_login = async (page) => {
     const {ONT_IP, ONT_USER, ONT_PASS} = constants;
-    console.log('Logging...')
+    console.log('Logging... to ', ONT_IP)
     await page.goto(`http:/${ONT_IP}`);
     await page.setViewport({ width: 1366, height: 768 });
 
@@ -50,4 +50,23 @@ export const handle_firmware_upgrade = async (page) => {
     await page.click("#RebootDes");
 
     return {msg: 'Upgrade do firmware realizado!'}
+}
+
+export const check_ont_version = async (page) => {
+    const {ONT_IP} = constants;
+    // setTimeout(async (page) => {
+    //     console.log('Checking if the ont is updated...');
+    //     await handle_login(page)
+    // }, 60000);
+    await handle_login(page);
+    
+    await page.goto(`http://${ONT_IP}/html/ssmp/deviceinfo/deviceinfo.asp`);
+    const f = await page.$("[id='td5_2']")
+    const firmware_version = await (await f.getProperty('textContent')).jsonValue()
+    
+    if (firmware_version == 'V5R020C10S252') {
+        return true;
+    }
+
+    return false;
 }

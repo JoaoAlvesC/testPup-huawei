@@ -3,7 +3,7 @@ Set objShell = WScript.CreateObject ("WScript.shell")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 strDirectory = objFSO.BuildPath(objShell.SpecialFolders("MyDocuments"), strDirectory)
 WScript.Echo "A ONT vai ser atualizada!"
-objShell.run "cmd /K CD " + strDirectory +  "/testPup-huawei/src & node index.js"
+objShell.run "cmd /C CD " + strDirectory +  "/testPup-huawei/src & node index.js && exit"
 WScript.Timeout = 3
 ' Set your settings
     strFileURL = "http://localhost:3199/api/v1/login"
@@ -15,3 +15,4 @@ WScript.Timeout = 3
     objXMLHTTP.send()
 
 Set objShell = Nothing
+
